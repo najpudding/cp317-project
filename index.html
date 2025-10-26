@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Hawk Park — Login</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="center">
+    <div class="card login-card">
+      <h1>Hawk Park</h1>
+      <input id="username" placeholder="Email or Username">
+      <input id="password" type="password" placeholder="Password">
+      <button id="loginBtn">Login</button>
+      <p class="muted">Demo: no real login. Click Login to continue.</p>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('loginBtn').onclick = () => {
+      // demo redirect
+      window.location.href = 'home.html';
+    };
+  </script>
+</body>
+</html>
