@@ -19,7 +19,7 @@
         </iframe>
       </section>
     </main>
-      <!-- Parent-level modal to display spot details over the whole page (receives messages from iframe) -->
+    
       <div id="parent-spot-modal" class="modal" aria-hidden="true">
         <div class="modal-content" role="dialog" aria-modal="true">
           <button class="modal-close" aria-label="Close">×</button>
@@ -35,9 +35,9 @@
           const modalBody = modal.querySelector('.modal-body');
           const closeBtn = modal.querySelector('.modal-close');
 
-          // Listen for messages from iframe
+         
           window.addEventListener('message', (event) => {
-            // If you want stricter security, check event.origin here.
+           
             const msg = event.data;
             if (!msg || msg.type !== 'openSpotModal') return;
             const spot = msg.spot || {};
@@ -48,7 +48,7 @@
             const notes = spot.notes || '';
 
             modalTitle.textContent = address + (price ? ' — ' + price : '');
-            // If this is the first location, show the image from the images folder at the top of the modal
+            
             let imgHtml = '';
             if (address.includes('123 King St')) {
               imgHtml = '<img src="images/pop_up.png" alt="123 King St" class="modal-image">';

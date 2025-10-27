@@ -10,7 +10,7 @@
 	</head>
 	<body>
 		<main class="spots-list">
-			<!-- Spot cards with data attributes used by the popup -->
+		
 			<div class="spot-card">
 				<h3>123 King St N, Waterloo — $5/hour</h3>
 				<p>5 min walk — Available 2PM–6PM</p>
@@ -143,14 +143,14 @@
 						const availability = btn.dataset.availability || '';
 						const notes = btn.dataset.notes || '';
 
-						// Send data to parent window so it can show a top-level modal over home.html
+					
 						if (window.parent && window.parent !== window) {
 							window.parent.postMessage({
 								type: 'openSpotModal',
 								spot: { address, price, walk, availability, notes }
 							}, '*');
 						} else {
-							// Fallback when listings.html is opened directly: navigate to a profile page
+							
 							window.location.href = 'profile.html';
 						}
 					});
