@@ -49,10 +49,7 @@
 
             modalTitle.textContent = address + (price ? ' — ' + price : '');
             
-            let imgHtml = '';
-            if (address.includes('123 King St')) {
-              imgHtml = '<img src="images/pop_up.png" alt="123 King St" class="modal-image">';
-            }
+            let imgHtml = '<img src="images/pop_up.png" alt="' + address + '" class="modal-image">';
             modalBody.innerHTML = imgHtml + `\n\t<p><strong>${walk}</strong></p>\n\t<p>${availability}</p>\n\t<p>${notes}</p>\n`;
             modal.setAttribute('aria-hidden','false');
             modal.classList.add('open');
