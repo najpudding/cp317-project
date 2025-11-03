@@ -9,131 +9,38 @@
 		<link rel="stylesheet" href="css/listings.css">
 	</head>
 	<body>
-		<main class="spots-list">
-		
-			<div class="spot-card">
-				<h3>123 King St N, Waterloo — $5/hour</h3>
-				<p>5 min walk — Available 2PM–6PM</p>
-				<button class="view-btn"
-					data-address="123 King St N, Waterloo"
-					data-price="$5/hour"
-					data-walk="5 min walk"
-					data-availability="Available 2PM–6PM"
-					data-notes="Covered spot near campus and transit. Safe well-lit area."
-				>View</button>
-			</div>
-
-			<div class="spot-card">
-				<h3>45 University Ave W, Waterloo — $4/hour</h3>
-				<p>3 min walk — Available 8AM–12PM</p>
-				<button class="view-btn"
-					data-address="45 University Ave W, Waterloo"
-					data-price="$4/hour"
-					data-walk="3 min walk"
-					data-availability="Available 8AM–12PM"
-					data-notes="Short-term spot; ideal for morning appointments."
-				>View</button>
-			</div>
-
-			<div class="spot-card">
-				<h3>10 Columbia St W, Waterloo — $6/hour</h3>
-				<p>7 min walk — Available 12PM–8PM</p>
-				<button class="view-btn"
-					data-address="10 Columbia St W, Waterloo"
-					data-price="$6/hour"
-					data-walk="7 min walk"
-					data-availability="Available 12PM–8PM"
-					data-notes="Drive-in access; electric vehicle charging nearby."
-				>View</button>
-			</div>
-
-			<div class="spot-card">
-				<h3>9 Erb St W, Waterloo — $3/hour</h3>
-				<p>2 min walk — Available 6AM–10AM</p>
-				<button class="view-btn"
-					data-address="9 Erb St W, Waterloo"
-					data-price="$3/hour"
-					data-walk="2 min walk"
-					data-availability="Available 6AM–10AM"
-					data-notes="Cheap early-bird spot; limited evening availability."
-				>View</button>
-			</div>
-
-			<div class="spot-card">
-				<h3>200 University Ave W, Waterloo — $7/hour</h3>
-				<p>9 min walk — Available 4PM–11PM</p>
-				<button class="view-btn"
-					data-address="200 University Ave W, Waterloo"
-					data-price="$7/hour"
-					data-walk="9 min walk"
-					data-availability="Available 4PM–11PM"
-					data-notes="Large lot with security patrols during the evening."
-				>View</button>
-			</div>
-
-			<div class="spot-card">
-				<h3>250 King St N, Waterloo — $5/hour</h3>
-				<p>6 min walk — Available 10AM–3PM</p>
-				<button class="view-btn"
-					data-address="250 King St N, Waterloo"
-					data-price="$5/hour"
-					data-walk="6 min walk"
-					data-availability="Available 10AM–3PM"
-					data-notes="Covered parking; friendly host and fast responses."
-				>View</button>
-			</div>
-
-			<div class="spot-card">
-				<h3>15 Bridgeport Rd E, Kitchener — $4.50/hour</h3>
-				<p>12 min walk — Available 9AM–5PM</p>
-				<button class="view-btn"
-					data-address="15 Bridgeport Rd E, Kitchener"
-					data-price="$4.50/hour"
-					data-walk="12 min walk"
-					data-availability="Available 9AM–5PM"
-					data-notes="Large driveway spot; good for daytime commuters."
-				>View</button>
-			</div>
-
-			<div class="spot-card">
-				<h3>88 Frederick St, Kitchener — $6.50/hour</h3>
-				<p>8 min walk — Available 1PM–9PM</p>
-				<button class="view-btn"
-					data-address="88 Frederick St, Kitchener"
-					data-price="$6.50/hour"
-					data-walk="8 min walk"
-					data-availability="Available 1PM–9PM"
-					data-notes="Near shopping and restaurants; convenient for evenings."
-				>View</button>
-			</div>
-
-			<div class="spot-card">
-				<h3>300 Weber St N, Kitchener — $5/hour</h3>
-				<p>10 min walk — Available 7AM–1PM</p>
-				<button class="view-btn"
-					data-address="300 Weber St N, Kitchener"
-					data-price="$5/hour"
-					data-walk="10 min walk"
-					data-availability="Available 7AM–1PM"
-					data-notes="Spacious lot; perfect for morning shifts."
-				>View</button>
-			</div>
-
-			<div class="spot-card">
-				<h3>77 Victoria St S, Kitchener — $3.50/hour</h3>
-				<p>4 min walk — Available 3PM–10PM</p>
-				<button class="view-btn"
-					data-address="77 Victoria St S, Kitchener"
-					data-price="$3.50/hour"
-					data-walk="4 min walk"
-					data-availability="Available 3PM–10PM"
-					data-notes="Quiet residential street; host allows overnight parking by request."
-				>View</button>
-			</div>
-
-		</main>
+		<main class="spots-list"></main>
 
 		<script>
+			function addSpot(price, address, walk, availability, notes) {
+				const spotCard = document.createElement('div');
+				spotCard.className = 'spot-card';
+				spotCard.innerHTML = `
+					<h3>${address} — $${price}/hour</h3>
+					<p>${walk} min walk — Available ${availability[0]}AM–${availability[1]}PM</p>
+					<button class="view-btn"
+						data-address="${address}"
+						data-price="${price}/hour"
+						data-walk="${walk} min walk"
+						data-availability="Available ${availability[0]}AM–${availability[1]}PM"
+						data-notes="${notes}"
+					>View</button>
+				`;
+				document.querySelector('.spots-list').appendChild(spotCard);
+			}
+
+			addSpot(5, "123 King St N, Waterloo", 5, [2, 6], "Covered spot near campus and transit. Safe well-lit area.");
+			addSpot(4, "45 University Ave W, Waterloo", 3, [8, 12], "Short-term spot; ideal for morning appointments.");
+			addSpot(6, "10 Columbia St W, Waterloo", 7, [12, 8], "Drive-in access; electric vehicle charging nearby.");
+			addSpot(3, "9 Erb St W, Waterloo", 2, [6, 10], "Cheap early-bird spot; limited evening availability.");
+			addSpot(7, "200 University Ave W, Waterloo", 9, [4, 11], "Large lot with security patrols during the evening.");
+			addSpot(5, "250 King St N, Waterloo", 6, [10, 3], "Covered parking; friendly host and fast responses.");
+			addSpot(4.5, "15 Bridgeport Rd E, Kitchener", 12, [9, 5], "Large driveway spot; good for daytime commuters.");
+			addSpot(6.5, "88 Frederick St, Kitchener", 8, [1, 9], "Near shopping and restaurants; convenient for evenings.");
+			addSpot(5, "300 Weber St N, Kitchener", 10, [7, 1], "Spacious lot; perfect for morning shifts.");
+			addSpot(3.5, "77 Victoria St S, Kitchener", 4, [3, 10], "Quiet residential street; host allows overnight parking by request.");
+
+
 			(function(){
 				document.querySelectorAll('.view-btn').forEach(btn => {
 					btn.addEventListener('click', () => {
