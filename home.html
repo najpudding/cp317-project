@@ -39,18 +39,19 @@
           window.addEventListener('message', (event) => {
            
             const msg = event.data;
+            console.log(msg);
             if (!msg || msg.type !== 'openSpotModal') return;
             const spot = msg.spot || {};
             const address = spot.address || '';
-            const price = spot.price || '';
-            const walk = spot.walk || '';
-            const availability = spot.availability || '';
+            const price = spot.priceString || '';
+            const dist = spot.distString || '';
+            const availability = spot.availabilityString || '';
             const notes = spot.notes || '';
 
             modalTitle.textContent = address + (price ? ' — ' + price : '');
             
             let imgHtml = '<img src="images/pop_up.png" alt="' + address + '" class="modal-image">';
-            modalBody.innerHTML = imgHtml + `\n\t<p><strong>${walk}</strong></p>\n\t<p>${availability}</p>\n\t<p>${notes}</p>\n`;
+            modalBody.innerHTML = imgHtml + `\n\t<p><strong>${dist}</strong></p>\n\t<p>${availability}</p>\n\t<p>${notes}</p>\n`;
             modal.setAttribute('aria-hidden','false');
             modal.classList.add('open');
           });

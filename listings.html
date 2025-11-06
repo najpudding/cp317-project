@@ -11,58 +11,8 @@
 	<body>
 		<main class="spots-list"></main>
 
-		<script>
-			function addSpot(price, address, walk, availability, notes) {
-				const spotCard = document.createElement('div');
-				spotCard.className = 'spot-card';
-				spotCard.innerHTML = `
-					<h3>${address} — $${price}/hour</h3>
-					<p>${walk} min walk — Available ${availability[0]}AM–${availability[1]}PM</p>
-					<button class="view-btn"
-						data-address="${address}"
-						data-price="${price}/hour"
-						data-walk="${walk} min walk"
-						data-availability="Available ${availability[0]}AM–${availability[1]}PM"
-						data-notes="${notes}"
-					>View</button>
-				`;
-				document.querySelector('.spots-list').appendChild(spotCard);
-			}
+		<script src="listings.js">
 
-			addSpot(5, "123 King St N, Waterloo", 5, [2, 6], "Covered spot near campus and transit. Safe well-lit area.");
-			addSpot(4, "45 University Ave W, Waterloo", 3, [8, 12], "Short-term spot; ideal for morning appointments.");
-			addSpot(6, "10 Columbia St W, Waterloo", 7, [12, 8], "Drive-in access; electric vehicle charging nearby.");
-			addSpot(3, "9 Erb St W, Waterloo", 2, [6, 10], "Cheap early-bird spot; limited evening availability.");
-			addSpot(7, "200 University Ave W, Waterloo", 9, [4, 11], "Large lot with security patrols during the evening.");
-			addSpot(5, "250 King St N, Waterloo", 6, [10, 3], "Covered parking; friendly host and fast responses.");
-			addSpot(4.5, "15 Bridgeport Rd E, Kitchener", 12, [9, 5], "Large driveway spot; good for daytime commuters.");
-			addSpot(6.5, "88 Frederick St, Kitchener", 8, [1, 9], "Near shopping and restaurants; convenient for evenings.");
-			addSpot(5, "300 Weber St N, Kitchener", 10, [7, 1], "Spacious lot; perfect for morning shifts.");
-			addSpot(3.5, "77 Victoria St S, Kitchener", 4, [3, 10], "Quiet residential street; host allows overnight parking by request.");
-
-
-			(function(){
-				document.querySelectorAll('.view-btn').forEach(btn => {
-					btn.addEventListener('click', () => {
-						const address = btn.dataset.address || '';
-						const price = btn.dataset.price || '';
-						const walk = btn.dataset.walk || '';
-						const availability = btn.dataset.availability || '';
-						const notes = btn.dataset.notes || '';
-
-					
-						if (window.parent && window.parent !== window) {
-							window.parent.postMessage({
-								type: 'openSpotModal',
-								spot: { address, price, walk, availability, notes }
-							}, '*');
-						} else {
-							
-							window.location.href = 'profile.html';
-						}
-					});
-				});
-			})();
 		</script>
 	</body>
 </html>
