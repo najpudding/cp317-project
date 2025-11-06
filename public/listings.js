@@ -1,5 +1,5 @@
 function createSpot(price, address, dist, availability, notes) {
-    const priceString = price + "/hour"
+    const priceString = `$${price}/hour`;
     let distString = (dist > 60 ? Math.round(dist / 60 * 10) / 10 + " hr " : "") + (dist % 60) + " min"
 
     // this is just to decide between AM and PM for availability times 
@@ -8,7 +8,7 @@ function createSpot(price, address, dist, availability, notes) {
     const spotCard = document.createElement('div');
     spotCard.className = 'spot-card';
     spotCard.innerHTML = `
-        <h3>${address} — $${price}/hour</h3>
+        <h3>${address} — ${priceString}</h3>
         <p>${distString} — ${availabilityString}</p>
         <button class="view-btn"
             data-address="${address}"
@@ -32,7 +32,8 @@ function createSpot(price, address, dist, availability, notes) {
 
 const spotsList = document.querySelector('.spots-list');
 
-exampleValues = [
+//these will be obtained from server later, just hardcoded for now, format: [price, address, dist (in minutes), [availability start, availability end], notes]
+const exampleValues = [
     [5, "123 King St N, Waterloo", 5, [14, 18], "Covered spot near campus and transit. Safe well-lit area."],
     [4, "45 University Ave W, Waterloo", 3, [8, 12], "Short-term spot; ideal for morning appointments."],
     [6, "10 Columbia St W, Waterloo", 7, [12, 8], "Drive-in access; electric vehicle charging nearby."],
