@@ -1,0 +1,24 @@
+{
+  "name": "hawkpark",
+  "version": "1.0.0",
+  "description": "*This site will be used for allowing users to find and temporarly rent driveways and private parking areas. Users will be allowed to create an account as a providor or a user. Any and all bookings will be available on the site itself.*",
+  "homepage": "https://github.com/najpudding/cp317-project#readme",
+  "bugs": {
+    "url": "https://github.com/najpudding/cp317-project/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/najpudding/cp317-project.git"
+  },
+  "license": "MIT",
+  "author": "",
+  "type": "module",
+  "exports": "./server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
