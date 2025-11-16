@@ -38,6 +38,33 @@ body {
 	outline: none;
 	transition: border 0.2s;
 }
+
+.password-field {
+	position: relative;
+	display: flex;
+	align-items: center;
+}
+
+.password-field input {
+	width: 100%;
+	padding-right: 40px;
+}
+
+.toggle-password {
+	position: absolute;
+	right: 12px;
+	top: 50%;
+	transform: translateY(-50%);
+	cursor: pointer;
+	color: #888;
+	display: flex;
+	align-items: center;
+	height: 22px;
+}
+.toggle-password svg {
+	pointer-events: none;
+}
+}
 .auth-form input:focus {
 	border-color: #d32f2f;
 }
@@ -68,4 +95,35 @@ body {
 }
 .auth-link a:hover {
 	text-decoration: underline;
+}
+
+.custom-popup {
+	position: fixed;
+	top: 0; left: 0; right: 0; bottom: 0;
+	background: rgba(0,0,0,0.3);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 9999;
+}
+.custom-popup-content {
+	background: #fff;
+	padding: 32px 24px;
+	border-radius: 12px;
+	box-shadow: 0 2px 16px rgba(0,0,0,0.15);
+	font-size: 1.1rem;
+	text-align: center;
+}
+.custom-popup-btn {
+	margin-top: 18px;
+	padding: 8px 24px;
+	border: none;
+	border-radius: 6px;
+	background: #d32f2f;
+	color: #fff;
+	font-size: 1rem;
+	cursor: pointer;
+}
+.custom-popup-btn:hover {
+	background: #a51c1c;
 }

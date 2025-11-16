@@ -1,0 +1,11 @@
+{
+  "name": "hawkpark-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for Hawk Park parking app",
+  "scripts": {
+    "start": "npx serve ."
+  },
+  "devDependencies": {
+    "serve": "^14.2.0"
+  }
+}
