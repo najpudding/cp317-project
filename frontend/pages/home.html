@@ -3,69 +3,14 @@
 <head>
   <meta charset="utf-8">
   <title>Hawk Park — Home</title>
-  <link rel="stylesheet" href="../css/style.css">
-  <link rel="stylesheet" href="../css/listings.css">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../components/navbar/navbar.css">
 </head>
 <body>
-  <header class="site-header">
-    <h2>Hawk Park — Available Spots</h2>
-    <nav><a href="profile.html">Profile</a> | <a href="index.html">Logout</a></nav>
-  </header>
-
-    <main class="container">
-      <section class="listings">
-        <iframe src="listings.html" title="Listings" style="width:100%;height:900px;border:0;">
-          Your browser does not support iframes. <a href="listings.html">Open listings</a>.
-        </iframe>
-      </section>
-    </main>
-    
-      <div id="parent-spot-modal" class="modal" aria-hidden="true">
-        <div class="modal-content" role="dialog" aria-modal="true">
-          <button class="modal-close" aria-label="Close">×</button>
-          <h2 class="modal-title"></h2>
-          <div class="modal-body"></div>
-        </div>
-      </div>
-
-      <script>
-        (function(){
-          const modal = document.getElementById('parent-spot-modal');
-          const modalTitle = modal.querySelector('.modal-title');
-          const modalBody = modal.querySelector('.modal-body');
-          const closeBtn = modal.querySelector('.modal-close');
-
-         
-          window.addEventListener('message', (event) => {
-           
-            const msg = event.data;
-            console.log(msg);
-            if (!msg || msg.type !== 'openSpotModal') return;
-            const spot = msg.spot || {};
-            const address = spot.address || '';
-            const price = spot.priceString || '';
-            const dist = spot.distString || '';
-            const availability = spot.availabilityString || '';
-            const notes = spot.notes || '';
-
-            modalTitle.textContent = address + (price ? ' — ' + price : '');
-            
-            let imgHtml = '<img src="../images/pop_up.png" alt="' + address + '" class="modal-image">';
-            modalBody.innerHTML = imgHtml + `\n\t<p><strong>${dist}</strong></p>\n\t<p>${availability}</p>\n\t<p>${notes}</p>\n`;
-            modal.setAttribute('aria-hidden','false');
-            modal.classList.add('open');
-          });
-
-          closeBtn.addEventListener('click', closeModal);
-          modal.addEventListener('click', (e) => {
-            if (e.target === modal) closeModal();
-          });
-
-          function closeModal(){
-            modal.classList.remove('open');
-            modal.setAttribute('aria-hidden','true');
-          }
-        })();
-      </script>
+  <!-- Navbar will be injected at the top -->
+  <script src="../components/navbar/navbar.js"></script>
+  <!-- Only navbar is displayed -->
+</body>
+</html>
 </body>
 </html>

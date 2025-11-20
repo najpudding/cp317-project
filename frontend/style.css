@@ -1,14 +1,19 @@
-body {
+
+
+html, body {
   min-height: 100vh;
   margin: 0;
+  padding: 0;
   font-family: Arial, sans-serif;
-  background: linear-gradient(to bottom, #f4f6f8 0%, #ff4e50 100%);
   color: #222;
+  width: 100vw;
+  overflow-x: hidden;
 }
+
 
 .container {
   max-width: 900px;
-  margin: 20px auto;
+  margin: 0;
   padding: 0 16px;
 }
 

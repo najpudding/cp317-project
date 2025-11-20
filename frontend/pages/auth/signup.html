@@ -5,6 +5,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Sign Up for Hawk Park</title>
 	<link rel="stylesheet" href="../../components/auth/signup.css">
+	<script src="../../components/auth/signup.js" defer></script>
 </head>
 <body>
 	<div class="auth-container">
@@ -12,8 +13,18 @@
 			<h2>Sign Up for Hawk Park</h2>
 			<input type="text" placeholder="Username" required>
 			<input type="email" placeholder="Email" required>
-			<input type="password" placeholder="Password" required>
-			<input type="password" placeholder="Confirm Password" required>
+			<div class="password-field">
+				<input type="password" placeholder="Password" required id="signup-password">
+				<span class="toggle-password" data-target="signup-password">
+					<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-eye"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+				</span>
+			</div>
+			<div class="password-field">
+				<input type="password" placeholder="Confirm Password" required id="signup-confirm-password">
+				<span class="toggle-password" data-target="signup-confirm-password">
+					<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-eye"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+				</span>
+			</div>
 			<button type="submit">Create Account</button>
 			<p class="auth-link">Already have an account? <a href="login.html">Login</a></p>
 		</form>
