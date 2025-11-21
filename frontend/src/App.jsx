@@ -10,7 +10,7 @@ import { useLocation } from 'react-router-dom';
 
 function App() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-100 to-red-400 relative pb-16">
+    <div className="min-h-screen bg-gradient-to-b from-gray-100 to-red-300 relative">
       <BrowserRouter>
         <AppContent />
       </BrowserRouter>

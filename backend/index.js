@@ -1,3 +1,4 @@
+
 import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
 import pkg from 'pg';
@@ -19,6 +20,29 @@ const pool = new Pool({
 const app = express();
 app.use(express.json());
 app.use(cors());
+
+// Update user info endpoint
+app.put('/api/users/edit-username', async (req, res) => {
+	const { username, email } = req.body;
+	try {
+		// Check if username is taken by another user
+		const usernameCheck = await pool.query('SELECT id FROM users WHERE username = $1 AND email != $2', [username, email]);
+		if (usernameCheck.rows.length > 0) {
+			return res.status(400).json({ error: 'Username is already taken' });
+		}
+		// Update username where email matches
+		const result = await pool.query(
+			'UPDATE users SET username = $1 WHERE email = $2 RETURNING id, username, email, created_at',
+			[username, email]
+		);
+		if (result.rows.length === 0) {
+			return res.status(404).json({ error: 'User not found' });
+		}
+		res.status(200).json({ message: 'Username updated', user: result.rows[0] });
+	} catch (err) {
+		res.status(500).json({ error: 'Server error' });
+	}
+});
 
 app.post('/api/users/login', async (req, res) => {
 	const { email, password } = req.body;
