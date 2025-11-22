@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useUser } from '../../hook/UserContext.jsx';
 
 export default function SignUp({ onToggle, onAuthSuccess }) {
   const [form, setForm] = useState({ username: '', email: '', password: '', confirmPassword: '' });
   const [error, setError] = useState('');
+  const { setUser } = useUser();
 
   const handleChange = e => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -28,6 +30,8 @@ export default function SignUp({ onToggle, onAuthSuccess }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Registration failed');
+      // Save user info to context/localStorage
+      if (data.user) setUser(data.user);
       if (onAuthSuccess) onAuthSuccess();
     } catch (err) {
       setError(err.message);
@@ -42,7 +46,7 @@ export default function SignUp({ onToggle, onAuthSuccess }) {
         <input name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange} className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-300" />
         <input name="password" type="password" placeholder="Password" value={form.password} onChange={handleChange} className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-300" />
         <input name="confirmPassword" type="password" placeholder="Confirm Password" value={form.confirmPassword} onChange={handleChange} className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-300" />
-        <button type="submit" className="w-full bg-red-500 text-white py-2 rounded-lg font-semibold hover:bg-red-600 transition">Sign Up</button>
+        <button type="submit" className="w-full bg-red-500 text-white py-2 rounded-lg font-semibold hover:bg-red-600 transition border-2 border-black cursor-pointer">Sign Up</button>
       </form>
       {error && <div className="mt-2 text-sm text-red-500 text-center">{error}</div>}
       <div className="mt-4 text-sm text-gray-600 text-center">

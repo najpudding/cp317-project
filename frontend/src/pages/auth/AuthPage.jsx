@@ -9,7 +9,7 @@ export default function AuthPage() {
 
   // Handler to redirect after login/signup
   const handleAuthSuccess = () => {
-    navigate('/home');
+    navigate('/');
   };
 
   return (

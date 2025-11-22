@@ -34,7 +34,7 @@ export default function Login({ onToggle, onAuthSuccess }) {
       <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
         <input name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange} className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-300" />
         <input name="password" type="password" placeholder="Password" value={form.password} onChange={handleChange} className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-300" />
-        <button type="submit" className="w-full bg-red-500 text-white py-2 rounded-lg font-semibold hover:bg-red-600 transition">Login</button>
+        <button type="submit" className="w-full bg-red-500 text-white py-2 rounded-lg font-semibold hover:bg-red-600 transition border-2 border-black cursor-pointer">Login</button>
       </form>
       {error && <div className="mt-2 text-sm text-red-500 text-center">{error}</div>}
       <div className="mt-4 text-sm text-gray-600 text-center">

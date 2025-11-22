@@ -1,4 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap');
+@import "tailwindcss";
+/* Add a border to each dropdown item */
+.dropdown-option {
+	border-bottom: 1px solid #d1d5db;
+}
+button {
+	cursor: pointer;
+}
 
 body, button, input, textarea, select, h1, h2, h3, h4, h5, h6, span, div, p {
 	font-family: 'Rubik', sans-serif;
@@ -7,7 +15,6 @@ body, button, input, textarea, select, h1, h2, h3, h4, h5, h6, span, div, p {
 body {
   /* Allow scrolling by default */
 }
-@import "tailwindcss";
 
 /* Modern input/button styles for AuthPage */
 .input {
