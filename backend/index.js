@@ -1,3 +1,21 @@
+// Get listings by address
+app.get('/api/listings/address', async (req, res) => {
+	const address = req.query.address;
+	if (!address) {
+		return res.status(400).json({ error: 'Missing address parameter.' });
+	}
+	try {
+		const result = await pool.query('SELECT * FROM listings WHERE address = $1 ORDER BY id DESC', [address]);
+		const listings = await Promise.all(result.rows.map(async l => {
+			const coords = await getCoordinatesForAddress(l.address);
+			return { ...l, coordinates: coords };
+		}));
+		res.status(200).json(listings);
+	} catch (err) {
+		console.error('Error fetching listings by address:', err);
+		res.status(500).json({ error: 'Failed to fetch listings.' });
+	}
+});
 // Step 1: Address verification function using OpenStreetMap Nominatim
 import fetch from 'node-fetch';
 
@@ -23,7 +41,27 @@ async function verifyAddressWaterloo(address) {
 	});
 	return valid;
 }
-// Address verification removed. Listings logic will be handled here.
+// Geocode address using OpenStreetMap Nominatim
+async function getCoordinatesForAddress(address) {
+	const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address + ', Ontario, Canada')}`;
+	try {
+		const response = await fetch(url, {
+			headers: {
+				'User-Agent': 'HawkPark/1.0 (hawkpark@example.com)'
+			}
+		});
+		const data = await response.json();
+		if (data && data.length > 0) {
+			return {
+				lat: parseFloat(data[0].lat),
+				lon: parseFloat(data[0].lon)
+			};
+		}
+	} catch (err) {
+		console.error('Geocoding error:', err);
+	}
+	return null;
+}
 // ...existing code...
 
 import bcrypt from 'bcrypt';
@@ -107,7 +145,11 @@ app.post('/api/listings', async (req, res) => {
 app.get('/api/listings', async (req, res) => {
 	try {
 		const result = await pool.query('SELECT * FROM listings ORDER BY id DESC');
-		res.status(200).json(result.rows);
+		const listings = await Promise.all(result.rows.map(async l => {
+			const coords = await getCoordinatesForAddress(l.address);
+			return { ...l, coordinates: coords };
+		}));
+		res.status(200).json(listings);
 	} catch (err) {
 		console.error('Error fetching listings:', err);
 		res.status(500).json({ error: 'Failed to fetch listings.' });
