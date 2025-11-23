@@ -156,12 +156,25 @@ export default function MyProfile() {
 											 <span className="mx-1 text-green-700 font-bold">${listing.price}/hr</span>
 										 </div>
 										 <div className="flex flex-row gap-2 ml-auto">
-											 <button className="px-2 py-1 bg-red-500 text-white rounded border border-black hover:bg-red-600 transition cursor-pointer" style={{fontSize: '0.75rem'}} onClick={() => {
+											 <button className="px-2 py-1 bg-red-500 text-white rounded border border-black hover:bg-red-600 transition cursor-pointer" style={{fontSize: '0.75rem'}} onClick={async () => {
 												 if (window.confirm('Are you sure you want to delete this listing?')) {
-													 const updated = [...listings];
-													 updated.splice(idx, 1);
-													 setListings(updated);
-													 localStorage.setItem('user_listings', JSON.stringify(updated));
+													 try {
+														 const res = await fetch(`http://localhost:3001/api/listings/${listing.id}`, {
+															 method: 'DELETE',
+															 headers: { 'Content-Type': 'application/json' },
+															 body: JSON.stringify({ user_email: user.email })
+														 });
+														 if (res.ok) {
+															 // Re-fetch listings from backend
+															 const refreshed = await fetch('http://localhost:3001/api/listings');
+															 const data = await refreshed.json();
+															 setListings(data.filter(l => l.user_email === user.email));
+														 } else {
+															 alert('Failed to delete listing.');
+														 }
+													 } catch (err) {
+														 alert('Server error while deleting listing.');
+													 }
 												 }
 											 }}>
 												 Delete

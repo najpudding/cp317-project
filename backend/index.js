@@ -57,7 +57,25 @@ app.use((req, res, next) => {
 	next();
 });
 // Create a new listing (no address verification)
-import { addListing } from './database/listings.js';
+import { addListing, deleteListing } from './database/listings.js';
+// Delete a listing by id (only by owner)
+app.delete('/api/listings/:id', async (req, res) => {
+	const id = parseInt(req.params.id, 10);
+	const user_email = req.body.user_email;
+	if (!id || !user_email) {
+		return res.status(400).json({ error: 'Missing listing id or user email.' });
+	}
+	try {
+		const deleted = await deleteListing(id, user_email);
+		if (!deleted) {
+			return res.status(404).json({ error: 'Listing not found or not owned by user.' });
+		}
+		res.status(200).json({ message: 'Listing deleted.', listing: deleted });
+	} catch (err) {
+		console.error('Error deleting listing:', err);
+		res.status(500).json({ error: 'Failed to delete listing.' });
+	}
+});
 
 app.post('/api/listings', async (req, res) => {
 	console.log('Received /api/listings POST:', req.body);

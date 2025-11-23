@@ -56,3 +56,11 @@ export async function addListing(listing) {
   }
   return result.rows[0];
 }
+
+export async function deleteListing(id, user_email) {
+  const result = await pool.query(
+    'DELETE FROM listings WHERE id = $1 AND user_email = $2 RETURNING *',
+    [id, user_email]
+  );
+  return result.rows[0];
+}
