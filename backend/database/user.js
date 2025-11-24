@@ -22,4 +22,42 @@ export async function createUser({ username, email, password_hash }) {
 	return result.rows[0];
 }
 
+export async function getUserById(userId){
+    const result = await pool.query(
+        'SELECT id, username, email, created_at FROM users WHERE id = $1',
+        [userId]
+    );
+    return result.rows[0] || null;
+}
+
+//returns updated user
+export async function updateUser(userId, updates){
+    const { username, email } = updates;
+
+    const updatesArray = [];
+    const values = [];
+    let paramCount = 1;
+
+    if (username !== undefined){
+        updatesArray.push(`username = $${paramCount}`);
+        values.push(username);
+        paramCount++;
+    }
+
+    if (email !== undefined){
+        updatesArray.push(`email = $${paramCount}`);
+        values.push(email);
+        paramCount++;
+    }
+
+    if (updatesArray.length === 0){
+        return null;
+    }
+    values.push(userId);
+
+    const query = `UPDATE users SET ${updatesArray.join(', ')} WHERE id = $${paramCount} RETURNING id, username, email, created_at`;
+    const result = await pool.query(query, values);
+
+    return result.rows[0] || null;
+}
 // This file is not needed for PostgreSQL. Remove Mongoose code.

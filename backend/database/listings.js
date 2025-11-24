@@ -65,4 +65,91 @@ export async function deleteListing(id, user_email) {
   return result.rows[0];
 }
 
+//updates only if user email matches
+export async function updateListing(listingId, userEmail, updates){
+    const {
+        address,
+        parking_number,
+        vehicle_size,
+        indoor_outdoor,
+        availability_from,
+        availability_to,
+        days,
+        price
+    } =  updates;
+
+    const updatesArray = [];
+    const values = [];
+    let paramCount = 1;
+
+    if (address !== undefined){
+        updatesArray.push(`address = $${paramCount}`);
+        values.push(address);
+        paramCount++;
+    }
+
+    if (parking_number !== undefined){
+        updatesArray.push(`parking_number = $${paramCount}`);
+        values.push(parking_number);
+        paramCount++;
+    }
+
+    if (vehicle_size !== undefined){
+        updatesArray.push(`vehicle_size = $${paramCount}`);
+        values.push(vehicle_size);
+        paramCount++;
+    }
+
+    if (indoor_outdoor !== undefined){
+        updatesArray.push(`indoor_outdoor = $${paramCount}`);
+        values.push(indoor_outdoor);
+        paramCount++;
+    }
+
+    if (availability_from !== undefined){
+        updatesArray.push(`availability_from = $${paramCount}`);
+        values.push(availability_from);
+        paramCount++;
+    }
+
+    if (availability_to !== undefined){
+        updatesArray.push(`availability_to = $${paramCount}`);
+        values.push(availability_to);
+        paramCount++;
+    }
+
+    if (days !== undefined){
+        const daysValue = Array.isArray(days) ? days.join(',') : days;
+        updatesArray.push(`days = $${paramCount}`);
+        values.push(daysValue);
+        paramCount++;
+    }
+
+    if (price !== undefined){
+        updatesArray.push(`price = $${paramCount}`);
+        values.push(price);
+        paramCount++;
+    }
+
+    if (updatesArray.length === 0){
+        return null;
+    }
+
+    values.push(listingId);
+    values.push(userEmail);
+
+    const query = `UPDATE listings SET ${updatesArray.join(', ')} WHERE id = $${paramCount} AND user_email = $${paramCount + 1} RETURNING *`;
+    const result = await pool.query(query, values);
+    return result.rows[0] || null;
+}
+
+export async function getListingsByUserEmail(userEmail) {
+    const result = await pool.query(
+        'SELECT * FROM listings WHERE user_email = $1 ORDER BY id DESC',
+        [userEmail] 
+    );
+    return result.rows;
+}
+
+
 

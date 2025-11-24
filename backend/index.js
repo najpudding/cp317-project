@@ -55,9 +55,8 @@ const { Pool } = pkg;
 dotenv.config();
 import express from 'express';
 import cors from 'cors';
-import { createUser } from './database/user.js';
-import { addListing, deleteListing } from './database/listings.js';
-
+import { createUser, getUserById, updateUser } from './database/user.js';
+import { addListing, deleteListing, updateListing, getListingsByUserEmail } from './database/listings.js';
 const pool = new Pool({
   user: process.env.PGUSER,
   host: process.env.PGHOST,
@@ -80,6 +79,34 @@ app.use((req, res, next) => {
 	next();
 });
 
+//Authentication middleware
+//validates that a user_id is provided and exists in the database
+async function authenticateUser(req, res, next){
+    try {
+        const user_id = req.body.user_id || req.query.user_id || req.headers['x-user-id'];
+
+        if(!user_id) {
+            return res.status(401).json({ error: 'Authentication required. Missing user id.'});
+        }
+
+        const userIdNum = parseInt(user_id, 10);
+        if (isNaN(userIdNum)) {
+            return res.status(400).json({ error: 'Invalid user id format. Must be a number'});
+        }
+
+        //verify user exists in database
+        const result = await pool.query('SELECT id, username, email, created_at FROM users WHERE id = $1', [userIdNum]);
+        if (result.rows.length === 0){
+            return res.status(401).json({ error: 'Authentication failed. User not found.'});
+        }
+        req.user = result.rows[0];
+        next();
+    } catch (err){
+        console.error('Authentication middleware error:', err);
+        res.status(500).json({ error: 'Authentication error'});
+    }
+}
+
 // Create a new listing (no address verification)
 
 // Delete a listing by id (only by owner)
@@ -96,18 +123,20 @@ app.delete('/api/listings/:id', async (req, res) => {
 		}
 		res.status(200).json({ message: 'Listing deleted.', listing: deleted });
 	} catch (err) {
-		console.error('Error deleting listing:', err);
+        console.error('Error deleting listing:', err);
 		res.status(500).json({ error: 'Failed to delete listing.' });
 	}
 });
 
-app.post('/api/listings', async (req, res) => {
+//updated with authentication
+app.post('/api/listings', authenticateUser, async (req, res) => {
 	console.log('Received /api/listings POST:', req.body);
-	const { user_email, address, parking_number, vehicle_size, indoor_outdoor, availability_from, availability_to, days, price } = req.body;
-	if (!user_email || !address || !vehicle_size || !indoor_outdoor || !availability_from || !availability_to || !price || !days || !Array.isArray(days) || days.length === 0) {
+	const { address, parking_number, vehicle_size, indoor_outdoor, availability_from, availability_to, days, price } = req.body;
+	if (!address || !vehicle_size || !indoor_outdoor || !availability_from || !availability_to || !price || !days || !Array.isArray(days) || days.length === 0) {
 		return res.status(400).json({ error: 'Missing required fields.' });
 	}
 	try {
+        const user_email = req.user.email;
 		const insertedListing = await addListing({
 			user_email,
 			address,
@@ -275,6 +304,142 @@ app.post('/api/users/register', async (req, res) => {
 		res.status(400).json({ error: err.message });
 	}
 });
+
+
+//PROFILE API ENDPOINTS (with authentication)
+app.get('/api/users/:id', authenticateUser, async (req, res) => {
+    try{
+        const requestedUserId = parseInt(req.params.id, 10);
+
+        if (isNaN(requestedUserId)){
+            return res.status(400).json({ error: 'Invalid user ID format' });
+        }
+
+        if (req.user.id !== requestedUserId){
+            return res.status(403).json({ error: 'Forbidden: You can only view your own profile' });
+        }
+
+        const user = await getUserById(requestedUserId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found'});
+        }
+        res.status(200).json({ user });
+
+    } catch (err) {
+        console.error(' Error fetching user profile:', err);
+        res.status(500).json({ error: 'Failed to fetch user profile' });
+    }
+});
+
+//update user profile
+app.put('/api/users/:id', authenticateUser, async (req, res) => {
+    try { 
+        const requestedUserId = parseInt(req.params.id, 10);
+
+        if (isNaN(requestedUserId)){
+            return res.status(400).json({ error: 'Invalid user ID format' });
+        }
+
+        if (req.user.id !== requestedUserId){
+            return res.status(403).json({ error: 'Forbidden: You can only view your own profile' });
+        }
+        const { username, email } = req.body;
+
+        if (username === undefined && email === undefined){
+            return res.status(400).json({ error: 'At least one field (username or email) must be provided' });
+        }
+
+        if (username !== undefined && username !== req.user.username) {
+            const usernameCheck = await pool.query(
+                'SELECT id FROM users WHERE username = $1 AND id != $2',
+                [username, requestedUserId]
+            );
+            if (usernameCheck.rows.length > 0){
+                return res.status(400).json({ error: 'Username is already taken' });
+            }
+        }
+
+        if (email !== undefined && email !== req.user.email) {
+            const emailCheck = await pool.query(
+                'SELECT id FROM users WHERE email = $1 AND id != $2',
+                [email, requestedUserId]
+            );
+            if (emailCheck.rows.length > 0){
+                return res.status(400).json({ error: 'email already exists' });
+            }
+        }
+        const updatedUser = await updateUser(requestedUserId, { username, email });
+        if(!updatedUser){
+            return res.status(404).json({ error: 'User not found' });
+        }
+        res.status(200).json({ message: 'Profile updated successfully', user: updatedUser });
+    } catch (err){
+        console.error('Error updating user profile:', err);
+        res.status(500).json({ error: 'Failed to update profile'} );
+    }
+});
+
+
+app.get('/api/users/:id/listings', authenticateUser, async (req, res) => {
+    try { 
+        const requestedUserId = parseInt(req.params.id, 10);
+
+        if (isNaN(requestedUserId)){
+            return res.status(400).json({ error: 'Invalid user ID format' });
+        }
+
+        if (req.user.id !== requestedUserId){
+            return res.status(403).json({ error: 'Forbidden: You can only view your own listings' });
+        }
+        const userEmail = req.user.email;
+        const listings = await getListingsByUserEmail(userEmail);
+        
+        const listingsWithCoords = await Promise.all(
+            listings.map(async (listing) => {
+                const coords = await getCoordinatesForAddress(listing.address);
+                return { ...listing, coordinates: coords };
+            })
+        );
+        res.status(200).json({ listings: listingsWithCoords });
+    } catch (err) {
+        console.error('Error fetching user listings:', err);
+        res.status(500).json({ error: 'Failed to fetch listings'});
+    }
+});
+
+app.put('/api/listings/:id', authenticateUser, async (req, res) => {
+	try {
+		const listingId = parseInt(req.params.id, 10);
+		
+		if (isNaN(listingId)) {
+			return res.status(400).json({ error: 'Invalid listing ID format' });
+		}
+		const updates = req.body;
+		const allowedFields = ['address', 'parking_number', 'vehicle_size', 'indoor_outdoor', 'availability_from', 'availability_to', 'days', 'price'];
+		const hasValidField = allowedFields.some(field => updates[field] !== undefined);
+		
+		if (!hasValidField) {
+			return res.status(400).json({ error: 'At least one field must be provided for update' });
+		}
+	
+		const userEmail = req.user.email;
+		const updatedListing = await updateListing(listingId, userEmail, updates);
+		
+		if (!updatedListing) {
+			return res.status(404).json({ error: 'Listing not found or you do not have permission to update it' });
+		}
+		const coords = await getCoordinatesForAddress(updatedListing.address);
+		
+		res.status(200).json({ 
+			message: 'Listing updated successfully', 
+			listing: { ...updatedListing, coordinates: coords } 
+		});
+	} catch (err) {
+		console.error('Error updating listing:', err);
+		res.status(500).json({ error: 'Failed to update listing' });
+	}
+});
+
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
