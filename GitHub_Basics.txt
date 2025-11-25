@@ -1,0 +1,66 @@
+-------------------------------------------------------
+PULLING
+
+- Open the terminal on you work space and do:
+
+        git pull origin main
+
+- Your ready to code when it says "already up to date"
+
+-------------------------------------------------------
+PUSHING - 1st time pushing 
+
+1. Open the terminal and change the directory to the project file:
+
+2. Initiate the repo
+
+        git init
+
+3. Direct the push to command to the repo using the code URL:
+
+        git remote add origin https://github.com/najpudding/cp317-project.git
+
+4. Add all the files:
+
+        git add .
+
+5. Add a commeit messege:
+
+        git commit -m "Message"
+
+6. Push the files to the GitHub repo:
+
+        git push -u origin main
+
+- Do "git pull" to make sure your up to date
+
+-------------------------------------------------------
+PUSHING - Any other time
+
+- Just do steps 4, 5, and 6 from above
+
+-------------------------------------------------------
+BRANCHING
+
+1. When branching, first check what branch you are in:
+
+        git checkout
+
+2. You will almost always start in "main", to change it:
+
+        git branch (new_branch_name)
+
+3. Now do step 1 again to see all branches and the active on:
+
+4. Push your work
+
+- When this is done you will need to make a pull request on GitHub(PR)
+
+-------------------------------------------------------
+EXTRA
+
+- To see what files have been changed use:
+
+        git status
+
+

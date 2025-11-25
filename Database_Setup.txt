@@ -1,0 +1,50 @@
+-------------------------------------------------------
+EXTENSION
+
+- Go to Extensions, search PostgreSQL(Chris Kolkman), and Install it
+
+-------------------------------------------------------
+".env" FILE
+
+1. Create a .env file in the backend
+
+2. Copy and Paste this inside:
+
+
+    # PostgreSQL connection settings
+    PGHOST = 
+    PGPORT = 
+    PGDATABASE = 
+    PGUSER = 
+    PGPASSWORD = 
+
+
+3. You will need to fill these in, Contact NICK
+
+-------------------------------------------------------
+SET UP
+
+1. Open the Extensionon the left-side tools bar
+
+2. Click the "+" (Add Connection)
+
+3. Fill out the Pop Up form using the info in the .env file
+
+-------------------------------------------------------
+TESTING WITH DATABASE
+
+1. Open 2 terminals/cmd's
+
+2a. Run the following code in the first terminal or cmd (frontend)
+
+
+    cd frontend && npx serve .
+
+
+2b. Run the following code in the second terminal or cmd (backend)
+
+
+    cd backend && npm start
+    
+
+3. Open the localhost link shown in the frontend terminal and start testing
