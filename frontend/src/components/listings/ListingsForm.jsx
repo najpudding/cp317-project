@@ -32,85 +32,90 @@ export default function ListingsForm({ onSubmit, onClose }) {
   const handleSubmit = async e => {
     e.preventDefault();
     setVerifyMsg('');
-    if (!form.address || !form.vehicleSize || !form.indoorOutdoor || !form.availabilityFrom || !form.availabilityTo || form.price === '' || form.days.length === 0) {
-      setError('Please fill in all mandatory fields and select at least one day');
+    setError('');
+    
+    //more specific validation with better error messages
+    const missingFields = [];
+    if (!form.address || form.address.trim() === '') missingFields.push('Address');
+    if (!form.vehicleSize || form.vehicleSize === '') missingFields.push('Vehicle Size');
+    if (!form.indoorOutdoor || form.indoorOutdoor === '') missingFields.push('Indoor/Outdoor');
+    if (!form.availabilityFrom || form.availabilityFrom === '') missingFields.push('Availability From');
+    if (!form.availabilityTo || form.availabilityTo === '') missingFields.push('Availability To');
+    
+    //price validation - check if empty or invalid
+    const priceValue = parseFloat(form.price);
+    if (form.price === '' || form.price === null || form.price === undefined || isNaN(priceValue) || priceValue <= 0) {
+      missingFields.push('Price (must be greater than 0)');
+    }
+    
+    if (!form.days || form.days.length === 0) missingFields.push('Days (select at least one day)');
+    
+    if (missingFields.length > 0) {
+      //debug: log form values to help troubleshoot
+      console.log('Form validation failed. Form values:', {
+        address: form.address,
+        vehicleSize: form.vehicleSize,
+        indoorOutdoor: form.indoorOutdoor,
+        availabilityFrom: form.availabilityFrom,
+        availabilityTo: form.availabilityTo,
+        price: form.price,
+        days: form.days,
+        daysLength: form.days?.length
+      });
+      setError(`Please fill in: ${missingFields.join(', ')}`);
       return;
     }
-    setError('');
     try {
-      // Always format address as 'street, city, Ontario, Canada' for Nominatim
-      let formattedAddress = form.address.trim();
-      // Try to extract city from user input, default to Waterloo if missing
-      let cityMatch = formattedAddress.match(/\b(waterloo|kitchener|cambridge)\b/i);
-      let city = cityMatch ? cityMatch[1] : 'Waterloo';
-      // Remove any city/province/country from input
-      formattedAddress = formattedAddress.replace(/\b(waterloo|kitchener|cambridge)\b.*$/i, '').replace(/,?\s*ontario.*$/i, '').replace(/,?\s*canada.*$/i, '').trim();
-      formattedAddress = `${formattedAddress}, ${city}, Ontario, Canada`;
-      setVerifyMsg('Verifying address...');
-      const nominatimUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(formattedAddress)}`;
-      const response = await fetch(nominatimUrl, {
-        headers: {
-          'User-Agent': 'HawkPark/1.0 (hawkpark@example.com)'
-        }
-      });
-      const contentType = response.headers.get('content-type');
-      if (!response.ok || !contentType || !contentType.includes('application/json')) {
-        setVerifyMsg('Address verification failed: Nominatim API error or rate limit.');
-        return;
-      }
-      const data = await response.json();
-      if (!data.length) {
-        setVerifyMsg('Address not found. Please enter a valid address in Waterloo Region.');
-        return;
-      }
-      // Check if address is in Waterloo Region (Waterloo, Kitchener, Cambridge)
-      const valid = data.some(item => {
-        const addr = item.address || {};
-        const cityField = addr.city || addr.town || addr.village || '';
-        const countyField = addr.county || '';
-        const stateField = addr.state || '';
-        const displayName = item.display_name || '';
-        return (/waterloo|kitchener|cambridge/i.test(cityField) || /waterloo|kitchener|cambridge/i.test(countyField) || /waterloo|kitchener|cambridge/i.test(displayName)) && /ontario/i.test(stateField + displayName);
-      });
-      if (!valid) {
-        setVerifyMsg('Address not found in Waterloo Region.');
-        return;
-      }
+      setVerifyMsg('Creating listing...');
+      
       // Get logged-in user from localStorage
-      let userEmail = '';
       const userObj = window.localStorage.getItem('user');
+      let user = null;
       try {
-        userEmail = JSON.parse(userObj).email || '';
+        user = JSON.parse(userObj);
       } catch {}
-      // If address is valid, POST to backend
-      // Remove province/country from address before saving
+      
+      if (!user || !user.id) {
+        setVerifyMsg('Please log in to create a listing.');
+        return;
+      }
+      
+      // Clean up address (remove province/country if user added it)
       let addressToSave = form.address.trim();
       addressToSave = addressToSave.replace(/,?\s*ontario.*$/i, '').replace(/,?\s*canada.*$/i, '').trim();
+      
+      // POST to backend - backend will handle geocoding
       const res = await fetch('http://localhost:3001/api/listings', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-user-id': user.id.toString() // Send user ID for authentication
+        },
         body: JSON.stringify({
-          user_email: userEmail,
           address: addressToSave,
-          parking_number: form.parkingNumber,
+          parking_number: form.parkingNumber || null,
           vehicle_size: form.vehicleSize,
           indoor_outdoor: form.indoorOutdoor,
           availability_from: form.availabilityFrom,
           availability_to: form.availabilityTo,
           days: form.days,
-          price: form.price
+          price: parseFloat(form.price)
         })
       });
+      
       const postData = await res.json();
       if (res.ok) {
-        setVerifyMsg('Listing added!');
-        onSubmit(form);
-        onClose();
+        setVerifyMsg('Listing added successfully!');
+        setTimeout(() => {
+          onSubmit(form);
+          onClose();
+        }, 500);
       } else {
         setVerifyMsg(postData.error || 'Failed to add listing.');
       }
     } catch (err) {
-      setVerifyMsg('Failed to add listing.');
+      console.error('Error creating listing:', err);
+      setVerifyMsg('Failed to add listing. Please try again.');
     }
   };
 

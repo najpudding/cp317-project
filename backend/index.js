@@ -25,14 +25,28 @@ async function verifyAddressWaterloo(address) {
 }
 
 // Geocode address using OpenStreetMap Nominatim
+// added 5 second timeout to prevent hanging requests
 async function getCoordinatesForAddress(address) {
 	const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address + ', Ontario, Canada')}`;
+	
+	const controller = new AbortController();
+	const timeoutId = setTimeout(() => controller.abort(), 5000);
+	
 	try {
 		const response = await fetch(url, {
 			headers: {
 				'User-Agent': 'HawkPark/1.0 (hawkpark@example.com)'
-			}
+			},
+			signal: controller.signal
 		});
+		
+		clearTimeout(timeoutId);
+		
+		if (!response.ok) {
+			console.warn(`Geocoding API returned status ${response.status} for address: ${address}`);
+			return null;
+		}
+		
 		const data = await response.json();
 		if (data && data.length > 0) {
 			return {
@@ -41,7 +55,12 @@ async function getCoordinatesForAddress(address) {
 			};
 		}
 	} catch (err) {
-		console.error('Geocoding error:', err);
+		clearTimeout(timeoutId);
+		if (err.name === 'AbortError' || err.code === 'ETIMEDOUT') {
+			console.warn(`Geocoding timeout for address: ${address} - continuing without coordinates`);
+		} else {
+			console.warn(`Geocoding error for address ${address}:`, err.message || err.code || err);
+		}
 	}
 	return null;
 }
