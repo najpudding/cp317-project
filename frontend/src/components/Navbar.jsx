@@ -22,7 +22,9 @@ export default function Navbar() {
             </button>
           </Link>
         ) : (
-          <span className="px-6 py-3 rounded-lg text-red-600 font-semibold transition">Not logged in</span>
+          <Link to="/auth">
+          <span className="px-6 py-3 rounded-lg text-red-800 font-semibold transition">Log in</span>
+          </Link>
         )}
       </div>
     </nav>
