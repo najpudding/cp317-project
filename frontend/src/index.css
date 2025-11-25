@@ -1,0 +1,52 @@
+@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap');
+@import "tailwindcss";
+/* Add a border to each dropdown item */
+.dropdown-option {
+	border-bottom: 1px solid #d1d5db;
+}
+button {
+	cursor: pointer;
+}
+
+body, button, input, textarea, select, h1, h2, h3, h4, h5, h6, span, div, p {
+	font-family: 'Rubik', sans-serif;
+}
+/* Hide scrollbars for all pages */
+body {
+  /* Allow scrolling by default */
+}
+
+/* Modern input/button styles for AuthPage */
+.input {
+	padding: 0.75rem 1rem;
+	border-radius: 0.5rem;
+	border: 1px solid #d1d5db;
+	font-size: 1rem;
+	background: #f9fafb;
+	transition: border-color 0.2s;
+}
+.input:focus {
+	border-color: #6366f1;
+	outline: none;
+}
+.input-bordered {
+	border: 1px solid #6366f1;
+}
+.btn {
+	padding: 0.75rem 1rem;
+	border-radius: 0.5rem;
+	font-weight: 600;
+	font-size: 1rem;
+	background: linear-gradient(90deg, #6366f1, #ec4899);
+	color: white;
+	border: none;
+	cursor: pointer;
+	box-shadow: 0 2px 8px rgba(99,102,241,0.1);
+	transition: background 0.2s;
+}
+.btn-primary {
+	background: linear-gradient(90deg, #6366f1, #ec4899);
+}
+.btn:hover {
+	background: linear-gradient(90deg, #4f46e5, #db2777);
+}
