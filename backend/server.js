@@ -1,13 +1,13 @@
 
 import express from 'express';
 import cors from 'cors';
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt';
 import { createServer } from 'node:http';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import dotenv from 'dotenv';
 import pool from './db.js';
-import { createUser, createUsersTable } from './Databases/users.js';
+import { createUser, createUsersTable } from './database/users.js';
 
 dotenv.config();
 
@@ -62,7 +62,7 @@ app.post('/api/signup', async (req, res) => {
 
 
 // Login endpoint
-import { getUserByEmail } from './Databases/users.js';
+import { getUserByEmail } from './database/users.js';
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {

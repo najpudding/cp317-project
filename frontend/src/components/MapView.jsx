@@ -53,9 +53,9 @@ export default function MapView({ listings = [], onMarkerClick, onMapClick }) {
   }
 
   return (
-    <div style={{ width: '100%', height: '400px', border: '2px solid #000', borderRadius: '1rem', overflow: 'hidden', position: 'relative' }}>
+    <div style={{ width: '100%', height: '400px', border: '2px solid #000', borderRadius: '1rem', overflow: 'hidden', position: 'relative', zIndex: 1 }}>
       <style>{`.leaflet-control-attribution { display: none !important; }`}</style>
-      <MapContainer center={[43.4643, -80.5204]} zoom={13} style={{ height: '100%', width: '100%' }} onClick={handleMapClick}>
+      <MapContainer center={[43.4643, -80.5204]} zoom={13} style={{ height: '100%', width: '100%', zIndex: 1 }} onClick={handleMapClick}>
         <TileLayer
           attribution=''
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

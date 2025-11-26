@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useUser } from '../hook/UserContext.jsx';
 import Navbar from '../components/Navbar';
 import MapView from '../components/MapView';
+import BookingForm from '../components/bookings/BookingForm.jsx';
 
 export default function Home() {
 	const { user } = useUser();
@@ -14,6 +15,10 @@ export default function Home() {
 	const [filterVehicleSize, setFilterVehicleSize] = useState('');
 	const [filterMinPrice, setFilterMinPrice] = useState('');
 	const [filterMaxPrice, setFilterMaxPrice] = useState('');
+
+	// Booking modal state
+	const [showBookingModal, setShowBookingModal] = useState(false);
+	const [selectedListing, setSelectedListing] = useState(null);
 
 	useEffect(() => {
 		fetchAllListings();
@@ -68,20 +73,39 @@ export default function Home() {
 		setFilteredListings(allListings);
 	}
 
+	function openBookingModal(listing) {
+		if (!user) {
+			alert('Please log in to book a parking spot');
+			return;
+		}
+		setSelectedListing(listing);
+		setShowBookingModal(true);
+	}
+
+	function closeBookingModal() {
+		setShowBookingModal(false);
+		setSelectedListing(null);
+	}
+
+	function handleBookingSubmit(booking) {
+		console.log('Booking created:', booking);
+		// Optionally refresh listings or show success message
+	}
+
 	return (
 		<>
 			<Navbar />
 			<div className="flex flex-col items-center min-h-screen pt-12 px-4 md:px-12 gap-4">
-				<div className="bg-white rounded-xl shadow p-4 w-full max-w-4xl flex flex-row gap-4 border-2 border-black flex-wrap">
+				<div className="bg-red-500 rounded-xl shadow-lg p-5 w-full max-w-7xl flex flex-row gap-3 border-2 border-black items-center">
 					<input
 						type="text"
 						placeholder="Filter by address"
-						className="input flex-1"
+						className="flex-1 min-w-[150px] px-3 py-2.5 rounded-lg border-2 border-black font-semibold text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-white transition"
 						value={filterAddress}
 						onChange={e => setFilterAddress(e.target.value)}
 					/>
 					<select
-						className="input"
+						className="px-3 py-2.5 rounded-lg border-2 border-black font-semibold text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-white transition cursor-pointer"
 						value={filterType}
 						onChange={e => setFilterType(e.target.value)}
 					>
@@ -90,30 +114,35 @@ export default function Home() {
 						<option value="Outdoor">Outdoor</option>
 					</select>
 					<select
-						className="input"
+						className="px-3 py-2.5 rounded-lg border-2 border-black font-semibold text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-white transition cursor-pointer"
 						value={filterVehicleSize}
 						onChange={e => setFilterVehicleSize(e.target.value)}
 					>
-						<option value="">All Vehicle Sizes</option>
+						<option value="">All Sizes</option>
 						<option value="Small">Small</option>
 						<option value="Medium">Medium</option>
 						<option value="Large">Large</option>
 					</select>
 					<input
 						type="number"
-						placeholder="Min Price"
-						className="input w-24"
+						placeholder="Min $"
+						className="w-24 px-3 py-2.5 rounded-lg border-2 border-black font-semibold text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-white transition"
 						value={filterMinPrice}
 						onChange={e => setFilterMinPrice(e.target.value)}
 					/>
 					<input
 						type="number"
-						placeholder="Max Price"
-						className="input w-24"
+						placeholder="Max $"
+						className="w-24 px-3 py-2.5 rounded-lg border-2 border-black font-semibold text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-white transition"
 						value={filterMaxPrice}
 						onChange={e => setFilterMaxPrice(e.target.value)}
 					/>
-					<button className="btn btn-primary" onClick={resetFilters}>Reset</button>
+					<button 
+						className="px-5 py-2.5 rounded-lg bg-white text-red-600 font-bold border-2 border-black hover:bg-gray-100 transition shadow-md whitespace-nowrap" 
+						onClick={resetFilters}
+					>
+						Reset
+					</button>
 				</div>
 
 				<div className="flex flex-row items-start justify-center w-full gap-8">
@@ -168,11 +197,27 @@ export default function Home() {
 									  })()
 									}</span></div>
 									<div className="text-xs text-gray-700">Type: <span className="font-bold">{listing.indoor_outdoor}</span>, Vehicle Size: <span className="font-bold">{listing.vehicle_size}</span></div>
+									<button 
+										className="mt-2 px-4 py-2 rounded-lg bg-red-600 text-white font-bold border-2 border-black hover:bg-red-700 transition shadow-md"
+										onClick={() => openBookingModal(listing)}
+									>
+										Book Now
+									</button>
 								</div>
 							))
 						)}
 					</div>
 				</div>
+
+				{/* Booking Modal */}
+				{showBookingModal && selectedListing && (
+					<BookingForm
+						listing={selectedListing}
+						user={user}
+						onSubmit={handleBookingSubmit}
+						onClose={closeBookingModal}
+					/>
+				)}
 			</div>
 		</>
 	);

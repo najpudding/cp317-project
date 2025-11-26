@@ -69,21 +69,15 @@ async function getCoordinatesForAddress(address) {
 
 import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
-import pkg from 'pg';
-const { Pool } = pkg;
-dotenv.config();
 import express from 'express';
 import cors from 'cors';
-import { createUser, getUserById, updateUser } from './database/user.js';
-import { addListing, deleteListing, updateListing, getListingsByUserEmail } from './database/listings.js';
-const pool = new Pool({
-  user: process.env.PGUSER,
-  host: process.env.PGHOST,
-  database: process.env.PGDATABASE,
-  password: process.env.PGPASSWORD,
-  port: process.env.PGPORT,
-  ssl: { rejectUnauthorized: false }
-});
+import pool from './db.js';
+import { createUser, getUserById, updateUser, getUserByEmail } from './database/users.js';
+import { addListing, deleteListing, updateListing, getListingsByUserEmail, getAllListings, getListingsByAddress } from './database/listings.js';
+import { createBooking, getBookingsByRenterEmail, getBookingsByOwnerEmail, deleteBooking, updateBookingStatus } from './database/bookings.js';
+
+dotenv.config();
+
 pool.on('error', (err) => {
   console.error('Unexpected error on idle PostgreSQL client', err);
 });
@@ -178,12 +172,12 @@ app.post('/api/listings', authenticateUser, async (req, res) => {
 // Get all listings
 app.get('/api/listings', async (req, res) => {
 	try {
-		const result = await pool.query('SELECT * FROM listings ORDER BY id DESC');
-		const listings = await Promise.all(result.rows.map(async l => {
+		const listings = await getAllListings();
+		const listingsWithCoords = await Promise.all(listings.map(async l => {
 			const coords = await getCoordinatesForAddress(l.address);
 			return { ...l, coordinates: coords };
 		}));
-		res.status(200).json(listings);
+		res.status(200).json(listingsWithCoords);
 	} catch (err) {
 		console.error('Error fetching listings:', err);
 		res.status(500).json({ error: 'Failed to fetch listings.' });
@@ -197,12 +191,12 @@ app.get('/api/listings/address', async (req, res) => {
 		return res.status(400).json({ error: 'Missing address parameter.' });
 	}
 	try {
-		const result = await pool.query('SELECT * FROM listings WHERE address = $1 ORDER BY id DESC', [address]);
-		const listings = await Promise.all(result.rows.map(async l => {
+		const listings = await getListingsByAddress(address);
+		const listingsWithCoords = await Promise.all(listings.map(async l => {
 			const coords = await getCoordinatesForAddress(l.address);
 			return { ...l, coordinates: coords };
 		}));
-		res.status(200).json(listings);
+		res.status(200).json(listingsWithCoords);
 	} catch (err) {
 		console.error('Error fetching listings by address:', err);
 		res.status(500).json({ error: 'Failed to fetch listings.' });
@@ -249,13 +243,11 @@ app.put('/api/users/change-password', async (req, res) => {
 
 	try {
 		// 1. Find the user by email
-		const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-		if (result.rows.length === 0) {
+		const user = await getUserByEmail(email);
+		if (!user) {
 			console.log('Change password: user not found', email);
 			return res.status(404).json({ error: 'User not found' });
 		}
-
-		const user = result.rows[0];
 
 		// 2. Check current password
 		const match = await bcrypt.compare(currentPassword, user.password_hash);
@@ -286,12 +278,11 @@ app.post('/api/users/login', async (req, res) => {
 	console.log('Received /api/users/login POST:', req.body);
 	const { email, password } = req.body;
 	try {
-		const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-		if (result.rows.length === 0) {
+		const user = await getUserByEmail(email);
+		if (!user) {
 			console.log('Login failed: email not found:', email);
 			return res.status(400).json({ error: 'Invalid email or password' });
 		}
-		const user = result.rows[0];
 		const match = await bcrypt.compare(password, user.password_hash);
 		if (!match) {
 			console.log('Login failed: password mismatch for email:', email);
@@ -311,13 +302,9 @@ app.post('/api/users/register', async (req, res) => {
 	try {
 		const saltRounds = 10;
 		const passwordHash = await bcrypt.hash(password, saltRounds);
-		const createdAt = new Date();
-		const result = await pool.query(
-			'INSERT INTO users (username, email, password_hash, created_at) VALUES ($1, $2, $3, $4) RETURNING *',
-			[username, email, passwordHash, createdAt]
-		);
+		const user = await createUser({ username, email, passwordHash });
 		console.log('User registered successfully:', email);
-		res.status(201).json({ message: 'User registered successfully', user: result.rows[0] });
+		res.status(201).json({ message: 'User registered successfully', user });
 	} catch (err) {
 		console.error('Error in /api/users/register:', err);
 		res.status(400).json({ error: err.message });
@@ -456,6 +443,99 @@ app.put('/api/listings/:id', authenticateUser, async (req, res) => {
 	} catch (err) {
 		console.error('Error updating listing:', err);
 		res.status(500).json({ error: 'Failed to update listing' });
+	}
+});
+
+// BOOKINGS ENDPOINTS
+
+// Create a new booking
+app.post('/api/bookings', authenticateUser, async (req, res) => {
+	console.log('Received /api/bookings POST:', req.body);
+	console.log('Authenticated user:', req.user);
+	
+	const { listing_id, owner_email, booking_date, start_time, end_time, total_price } = req.body;
+	
+	if (!listing_id || !owner_email || !booking_date || !start_time || !end_time || !total_price) {
+		console.log('Missing required fields:', { listing_id, owner_email, booking_date, start_time, end_time, total_price });
+		return res.status(400).json({ error: 'Missing required fields.' });
+	}
+	
+	try {
+		const renter_email = req.user.email;
+		// Check for existing booking for this listing and date
+		const existing = await pool.query(
+			'SELECT * FROM bookings WHERE listing_id = $1 AND booking_date = $2',
+			[listing_id, booking_date]
+		);
+		if (existing.rows.length > 0) {
+			return res.status(409).json({ error: 'This spot is already booked for that day.' });
+		}
+		console.log('Creating booking with data:', {
+			listing_id,
+			renter_email,
+			owner_email,
+			booking_date,
+			start_time,
+			end_time,
+			total_price
+		});
+		const booking = await createBooking({
+			listing_id,
+			renter_email,
+			owner_email,
+			booking_date,
+			start_time,
+			end_time,
+			total_price
+		});
+		console.log('Booking created successfully:', booking);
+		res.status(201).json({ message: 'Booking created successfully', booking });
+	} catch (err) {
+		console.error('Error creating booking:', err);
+		console.error('Error stack:', err.stack);
+		res.status(500).json({ error: 'Failed to create booking', details: err.message });
+	}
+});
+
+// Get bookings for current user (as renter)
+app.get('/api/bookings/renter', authenticateUser, async (req, res) => {
+	try {
+		const bookings = await getBookingsByRenterEmail(req.user.email);
+		res.status(200).json({ bookings });
+	} catch (err) {
+		console.error('Error fetching renter bookings:', err);
+		res.status(500).json({ error: 'Failed to fetch bookings' });
+	}
+});
+
+// Get bookings for current user (as owner)
+app.get('/api/bookings/owner', authenticateUser, async (req, res) => {
+	try {
+		const bookings = await getBookingsByOwnerEmail(req.user.email);
+		res.status(200).json({ bookings });
+	} catch (err) {
+		console.error('Error fetching owner bookings:', err);
+		res.status(500).json({ error: 'Failed to fetch bookings' });
+	}
+});
+
+// Delete a booking
+app.delete('/api/bookings/:id', authenticateUser, async (req, res) => {
+	const bookingId = parseInt(req.params.id, 10);
+	
+	if (isNaN(bookingId)) {
+		return res.status(400).json({ error: 'Invalid booking ID' });
+	}
+	
+	try {
+		const deleted = await deleteBooking(bookingId, req.user.email);
+		if (!deleted) {
+			return res.status(404).json({ error: 'Booking not found or you do not have permission to delete it' });
+		}
+		res.status(200).json({ message: 'Booking deleted successfully', booking: deleted });
+	} catch (err) {
+		console.error('Error deleting booking:', err);
+		res.status(500).json({ error: 'Failed to delete booking' });
 	}
 });
 
