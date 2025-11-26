@@ -13,6 +13,7 @@ export default function MyProfile() {
 	const [editing, setEditing] = useState(false);
 	const [showListingForm, setShowListingForm] = useState(false);
 	const [listings, setListings] = useState([]);
+	const [listingsLoading, setListingsLoading] = useState(true);
 	const [bookings, setBookings] = useState([]);
 	const [ownerBookings, setOwnerBookings] = useState([]);
 	const [currentPassword, setCurrentPassword] = useState('');
@@ -22,18 +23,20 @@ export default function MyProfile() {
 	const [pwMessage, setPwMessage] = useState('');
 
 	useEffect(() => {
+		window.scrollTo(0, 0);
 		async function fetchListings() {
 			if (!user?.email) return;
+			setListingsLoading(true);
 			try {
 				const res = await fetch('http://localhost:3001/api/listings');
 				const data = await res.json();
 				if (Array.isArray(data)) {
-					// Only show listings for the logged-in user
 					setListings(data.filter(l => l.user_email === user.email));
 				}
 			} catch (err) {
 				setListings([]);
 			}
+			setListingsLoading(false);
 		}
 		
 		async function fetchBookings() {
@@ -263,7 +266,7 @@ export default function MyProfile() {
 												<button
 													type="button"
 													onClick={handleChangePassword}
-													className="px-4 py-2 rounded-lg bg-red-500 text-white font-semibold text-sm hover:bg-red-600 transition"
+													className="px-4 py-2 rounded-lg bg-red-500 text-white font-semibold text-sm hover:bg-red-600 transition border-2 border-black"
 												>
 													Update password
 												</button>
@@ -393,7 +396,11 @@ export default function MyProfile() {
 						<h2 className="text-3xl font-bold text-red-500 mb-6 text-center">My Listings</h2>
 						<section className="flex flex-col items-center">
 							<div className="w-full max-w-4xl">
-								{listings.length === 0 && <p className="mb-4 text-lg text-gray-700 text-center">No listings yet.</p>}
+								{listingsLoading ? (
+									<p className="mb-4 text-lg text-gray-700 text-center">Loading listings...</p>
+								) : Array.isArray(listings) && listings.length === 0 ? (
+									<p className="mb-4 text-lg text-gray-700 text-center">You have no listings.</p>
+								) : null}
 								<button
 									className="mb-4 px-4 py-2 rounded-lg bg-red-500 text-white font-semibold border-2 border-black hover:bg-red-600 transition cursor-pointer"
 									onClick={() => {
