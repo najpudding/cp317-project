@@ -21,6 +21,7 @@ export default function Home() {
 	const [selectedListing, setSelectedListing] = useState(null);
 
 	useEffect(() => {
+		window.scrollTo(0, 0);
 		fetchAllListings();
 	}, [user]);
 
@@ -176,7 +177,7 @@ export default function Home() {
 						{loading ? (
 							<div className="bg-white rounded-xl shadow p-4 border-2 border-black">Loading listings...</div>
 						) : filteredListings.length === 0 ? (
-							<div className="bg-white rounded-xl shadow p-4 border-2 border-black">No listings available.</div>
+							<div className="bg-white rounded-xl shadow p-4 border-2 border-black">No listings available. Try adjusting your filters or check back later.</div>
 						) : (
 							filteredListings.map((listing, idx) => (
 								<div key={listing.id || idx} className="bg-white rounded-xl shadow p-3 border-2 border-black flex flex-col gap-2" style={{ width: 'auto' }}>
