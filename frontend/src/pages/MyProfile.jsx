@@ -170,7 +170,7 @@ export default function MyProfile() {
 
 	return (
 		<>
-			<div className="min-h-screen bg-red-100 flex items-center justify-center py-12">
+			<div className="min-h-screen flex items-center justify-center py-12">
 				<div className="max-w-6xl mx-auto flex flex-col gap-8 w-full px-4">
 					{/* Top Layer: Profile Info */}
 					<div className="bg-white rounded-3xl shadow-2xl p-12 w-full border-2 border-black">
