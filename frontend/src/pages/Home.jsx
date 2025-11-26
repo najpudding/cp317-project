@@ -197,11 +197,13 @@ export default function Home() {
 									  })()
 									}</span></div>
 									<div className="text-xs text-gray-700">Type: <span className="font-bold">{listing.indoor_outdoor}</span>, Vehicle Size: <span className="font-bold">{listing.vehicle_size}</span></div>
-									<button 
-										className="mt-2 px-4 py-2 rounded-lg bg-red-600 text-white font-bold border-2 border-black hover:bg-red-700 transition shadow-md"
+									<button
+										className={`mt-2 px-4 py-2 rounded-lg text-white font-bold border-2 border-black transition shadow-md ${user ? 'bg-red-600 hover:bg-red-700' : 'bg-gray-400 cursor-not-allowed'}`}
+										aria-disabled={!user}
 										onClick={() => openBookingModal(listing)}
+										title={user ? 'Book this listing' : 'Please log in to book'}
 									>
-										Book Now
+										{user ? 'Book Now' : 'Log in to Book'}
 									</button>
 								</div>
 							))
