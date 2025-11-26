@@ -1,19 +1,7 @@
 // listings.js
 // Database model for user listings
 
-
-import pkg from 'pg';
-const { Pool } = pkg;
-import dotenv from 'dotenv';
-dotenv.config();
-const pool = new Pool({
-  user: process.env.PGUSER,
-  host: process.env.PGHOST,
-  database: process.env.PGDATABASE,
-  password: process.env.PGPASSWORD,
-  port: process.env.PGPORT,
-  ssl: { rejectUnauthorized: false }
-});
+import pool from '../db.js';
 
 export async function createListingsTable() {
   await pool.query(`
@@ -147,6 +135,19 @@ export async function getListingsByUserEmail(userEmail) {
     const result = await pool.query(
         'SELECT * FROM listings WHERE user_email = $1 ORDER BY id DESC',
         [userEmail] 
+    );
+    return result.rows;
+}
+
+export async function getAllListings() {
+    const result = await pool.query('SELECT * FROM listings ORDER BY id DESC');
+    return result.rows;
+}
+
+export async function getListingsByAddress(address) {
+    const result = await pool.query(
+        'SELECT * FROM listings WHERE address = $1 ORDER BY id DESC',
+        [address]
     );
     return result.rows;
 }
